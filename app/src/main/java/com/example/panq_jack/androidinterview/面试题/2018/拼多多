@@ -1,0 +1,25 @@
+
+
+- WebView js桥  addJavascriptInterface 实现原理---- urlCheck
+优缺点   新的webview怎么做？
+
+- router跳转相关
+
+- 跨进程方式   binder 实现机制： 底层怎么通信的
+https://www.jianshu.com/writer#/notebooks/23067782/notes/29645946
+
+- 线程同步问题   synchronize的实现原理  -- monitor   -- aqs
+
+- WebView  遇到的优化问题
+
+- 反射的原理  --类加载
+https://www.jianshu.com/p/7b9bc984d278
+
+- 爬楼梯问题
+https://www.jianshu.com/p/6a6ab0cc3958
+
+- http 过程
+
+- 跨进程通信
+
+- 算法题： 二叉树的高： 递归及迭代

@@ -1,0 +1,181 @@
+https://blog.csdn.net/mwq384807683/article/details/70313685
+
+
+1>. 说一下如何对Android内存优化？
+Bitmap OOM（图片优化）
+ 1.图片处理
+    a． 等比缩放
+
+
+以上代码可以优化内存溢出，但它只是改变图片大小，并不能彻底解决内存溢出。
+
+    b． 对图片采用软引用，及时地进行recyle()操作
+
+
+    c． 设置图片解码格式
+BitmapFactory.Options options = new BitmapFactory.Options();
+options.inPreferredConfig = Bitmap.Config.ARGB_4444;
+
+    d． 加载部分图片
+
+
+2>. 图片的缓存
+a) 网络缓存
+b) 内存缓存
+c) 磁盘缓存
+
+3>. 使用加载图片框架处理图片，如专业处理加载图片的ImageLoader，glide，picasso等图片加载框架。
+通过以上方式可以解决图片OOM异常
+
+
+4>  UI Review（UI优化）
+减少视图层级
+减少视图层级可以有效的减少内存消耗，因为视图是一个树形结构，每次刷新和渲染都会遍历一次。
+
+5>  ViewStub标签
+此标签可以使UI在特殊情况下，直观效果类似于设置View的不可见性，但是其更大的意义在于被这个标签所包裹的Views在默认状态下不会占用任何内存空间。
+
+<ViewStub
+        android:id="@+id/mystub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/common_msg" >
+   </ViewStub>
+
+6>  include标签
+可以通过这个标签直接加载外部的xml到当前结构中，是复用UI资源的常用标签。
+
+<include
+        layout="@layout/activity_main" />
+
+7>  它在优化UI结构时起到很重要的作用。目的是通过删减多余或者额外的层级，从而优化整个Android Layout的结构。
+
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_launcher"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:text="我是小黑马"
+        />
+
+</merge>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_launcher" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="10dp"
+        android:text="我是小黑马"
+        android:textSize="20sp" />
+
+</LinearLayout>
+
+
+实现一模一样的效果，我们通过SDK自带工具检测android层级关系
+
+使用merge标签，布局少一个层级
+
+
+不使用merge标签，布局多一个层级
+
+
+8>  Fragment优化
+直接使用系统APP包下面的Fragment，不要使用V4包里面的Fragment可以减少层级结构。
+
+9>  使用ThreadPool优化代码（线程池实现原理）
+1、new Thread的弊端
+执行一个异步任务你还只是如下new Thread吗？
+new Thread的弊端如下：
+a. 每次new Thread新建对象性能差。
+b. 线程缺乏统一管理，可能无限制新建线程，相互之间竞争，及可能占用过多系统资源导致死机或oom。
+c. 缺乏更多功能，如定时执行、定期执行、线程中断。
+相比new Thread，Java提供的四种线程池的好处在于：
+a. 重用存在的线程，减少对象创建、消亡的开销，性能佳。
+b. 可有效控制最大并发线程数，提高系统资源的使用率，同时避免过多资源竞争，避免堵塞。
+c. 提供定时执行、定期执行、单线程、并发数控制等功能。
+
+2、Java 线程池
+Java通过Executors提供四种线程池，分别为：
+newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。
+newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+
+10>   String字符串优化
+最常见的例子就是当你要频繁操作一个字符串时，使用StringBuffer代替String。
+还比如：使用int数组而不是Integer数组。
+避免创建短命的临时对象，减少对象的创建就能减少垃圾收集，进而减少对用户体验的影响。
+
+11>  ListView优化
+Item布局，层级越少越好，使用hierarchyview工具查看优化。
+复用convertView
+使用ViewHolder
+item中有图片时，异步加载
+快速滑动时，不加载图片
+item中有图片时，应对图片进行适当压缩
+实现数据的分页加载
+
+
+12>   Receiver（接收器）回收
+调用registerReceiver()后未调用unregisterReceiver().
+当我们Activity中使用了registerReceiver()方法注册了BroadcastReceiver，一定要在Activity的生命周期内调用unregisterReceiver()方法取消注册
+也就是说registerReceiver()和unregisterReceiver()方法一定要成对出现，通常我们可以重写Activity的onDestory()方法，在onDestory里进行unregisterReceiver操作
+
+
+
+13>   避免内部Getters/Setters
+在Android中，虚方法调用的代价比直接字段访问高昂许多。通常根据面向对象语言的实践，在公共接口中使用Getters和Setters是有道理的，但在一个字段经常被访问的类中宜采用直接访问。
+for循环
+访问成员变量比访问本地变量慢得多，如下面一段代码：
+
+for(int i =0; i < this.mCount; i++)  {}
+
+永远不要在for的第二个条件中调用任何方法，如下面一段代码：
+
+for(int i =0; i < this.getCount(); i++) {
+}
+
+对上面两个例子最好改为：
+
+int count = this.mCount; / int count = this.getCount();
+for(int i =0; i < count; i++)  {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
